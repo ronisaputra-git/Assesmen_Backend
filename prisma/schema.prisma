@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PM
+  INTERNAL
+  CLIENT
+}
+
+enum Department {
+  UI_UX
+  FRONTEND
+  BACKEND
+  NONE
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+model User {
+  id            String      @id @default(uuid())
+  name          String
+  email         String      @unique
+  password      String
+  role          Role
+  department    Department?
+  projects      Project[]
+  assignedTasks Task[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  auditLogs AuditLog[]
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  clientId    String
+  client      User     @relation(fields: [clientId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       Task[]
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id])
+  assigneeId  String?
+  assignee    User?      @relation(fields: [assigneeId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  dependencies    TaskDependency[] @relation("TaskDependencies")
+  dependents      TaskDependency[] @relation("TaskDependents")
+  auditLogs AuditLog[]
+}
+model TaskDependency {
+  id            String   @id @default(uuid())
+
+  taskId        String
+  dependsOnId   String
+
+  task          Task     @relation("TaskDependencies", fields: [taskId], references: [id])
+  dependsOn     Task     @relation("TaskDependents", fields: [dependsOnId], references: [id])
+
+  createdAt     DateTime @default(now())
+
+  @@unique([taskId, dependsOnId])
+}
+model AuditLog {
+  id           String   @id @default(uuid())
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+
+  taskId       String
+  task         Task     @relation(fields: [taskId], references: [id])
+
+  changedColumn String
+  oldValue      String?
+  newValue      String?
+
+  createdAt    DateTime @default(now())
+}
