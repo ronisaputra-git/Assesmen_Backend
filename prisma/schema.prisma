@@ -16,6 +16,7 @@ enum Role {
   PM
   INTERNAL
   CLIENT
+  USER
 }
 
 enum Department {

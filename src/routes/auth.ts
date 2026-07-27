@@ -141,4 +141,68 @@ auth.post("/login", async (c) => {
     );
   }
 });
+auth.post("/register", async (c) => {
+  try {
+    const body = await c.req.json();
+
+    const { name, email, password } = body;
+
+    if (!name || !email || !password) {
+      return c.json(
+        {
+          message: "Name, email, and password are required",
+        },
+        400,
+      );
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (existingUser) {
+      return c.json(
+        {
+          message: "Email already registered",
+        },
+        409,
+      );
+    }
+
+    const hashedPassword = await Bun.password.hash(password);
+
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: "USER",
+      },
+    });
+
+    return c.json(
+      {
+        message: "Registration successful",
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      },
+      201,
+    );
+  } catch (error) {
+    console.error(error);
+
+    return c.json(
+      {
+        message: "Internal server error",
+      },
+      500,
+    );
+  }
+});
 export default auth;

@@ -174,7 +174,6 @@ tasks.patch("/:id/status", authMiddleware, async (c) => {
       );
     }
     const user = c.get("user");
-
     if (task.assigneeId !== user.userId) {
       return c.json(
         {

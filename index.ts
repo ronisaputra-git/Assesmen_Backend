@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+
 import prisma from "./src/lib/prisma";
 import auth from "./src/routes/auth";
 import { authMiddleware } from "./src/middleware/auth";
@@ -10,6 +11,17 @@ import tasks from "./src/routes/tasks";
 
 type Variables = {user: AuthUser;};
 const app = new Hono <{Variables : Variables}>();
+app.use("*", async (c, next) => {
+  c.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  c.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  c.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (c.req.method === "OPTIONS") {
+    return c.body(null, 204);
+  }
+
+  await next();
+});
 app.route("/auth", auth);
 app.route("/projects", projects);
 app.route("/tasks", tasks );
