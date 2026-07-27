@@ -4,10 +4,13 @@
   "type": "module",
   "private": true,
 
+ 
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "build": "prisma generate && tsc"
+    "dev": "bun --watch index.ts",
+    "build": "prisma generate && tsc",
+    "start": "bun index.ts"
   },
+
 
   "devDependencies": {
     "@types/bun": "latest",
