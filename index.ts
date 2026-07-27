@@ -1,27 +1,25 @@
 import { Hono } from "hono";
-
 import prisma from "./src/lib/prisma";
 import auth from "./src/routes/auth";
 import { authMiddleware } from "./src/middleware/auth";
 import type { AuthUser } from "./src/middleware/auth";
 import projects from "./src/routes/projects";
 import tasks from "./src/routes/tasks";
-
-
+import { cors } from "hono/cors";
 
 type Variables = {user: AuthUser;};
-const app = new Hono <{Variables : Variables}>();
-app.use("*", async (c, next) => {
-  c.header("Access-Control-Allow-Origin", "http://localhost:5173");
-  c.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  c.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-  if (c.req.method === "OPTIONS") {
-    return c.body(null, 204);
-  }
-
-  await next();
-});
+const app = new Hono<{ Variables: Variables }>();
+app.use(
+  "*",
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://assesmen-front-end.vercel.app",
+    ],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.route("/auth", auth);
 app.route("/projects", projects);
 app.route("/tasks", tasks );
