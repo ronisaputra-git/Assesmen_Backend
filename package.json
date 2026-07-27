@@ -3,14 +3,23 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "prisma generate && tsc"
+  },
+
   "devDependencies": {
     "@types/bun": "latest",
     "@types/jsonwebtoken": "^9.0.10",
-    "prisma": "^7.9.0"
+    "prisma": "^7.9.0",
+    "typescript": "^5"
   },
+
   "peerDependencies": {
     "typescript": "^5"
   },
+
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.0",
     "@prisma/client": "^7.9.0",

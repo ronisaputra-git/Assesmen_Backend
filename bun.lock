@@ -17,6 +17,7 @@
         "@types/bun": "latest",
         "@types/jsonwebtoken": "^9.0.10",
         "prisma": "^7.9.0",
+        "typescript": "^5",
       },
       "peerDependencies": {
         "typescript": "^5",
