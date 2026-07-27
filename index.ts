@@ -1,13 +1,18 @@
 import { Hono } from "hono";
-import prisma from "./src/lib/prisma";
-import auth from "./src/routes/auth";
-import { authMiddleware } from "./src/middleware/auth";
-import type { AuthUser } from "./src/middleware/auth";
-import projects from "./src/routes/projects";
-import tasks from "./src/routes/tasks";
 import { cors } from "hono/cors";
 
-type Variables = {user: AuthUser;};
+import prisma from "./src/lib/prisma";
+import auth from "./src/routes/auth";
+import projects from "./src/routes/projects";
+import tasks from "./src/routes/tasks";
+
+import { authMiddleware } from "./src/middleware/auth";
+import type { AuthUser } from "./src/middleware/auth";
+
+type Variables = {
+  user: AuthUser;
+};
+
 const app = new Hono<{ Variables: Variables }>();
 app.use(
   "*",
@@ -22,10 +27,11 @@ app.use(
 );
 app.route("/auth", auth);
 app.route("/projects", projects);
-app.route("/tasks", tasks );
-
+app.route("/tasks", tasks);
 app.get("/", (c) => {
-  return c.text("NodeWave Assessment API is running!");
+  return c.json({
+    message: "NodeWave Assessment API is running!",
+  });
 });
 
 app.get("/health", async (c) => {
@@ -36,21 +42,17 @@ app.get("/health", async (c) => {
       status: "ok",
       database: "connected",
     });
-  } catch (error) {
+  } catch {
     return c.json(
       {
         status: "error",
         database: "disconnected",
       },
-      500,
+      500
     );
   }
 });
 
-export default {
-  port: 3000,
-  fetch: app.fetch,
-};
 app.get("/protected", authMiddleware, (c) => {
   const user = c.get("user");
 
@@ -59,3 +61,8 @@ app.get("/protected", authMiddleware, (c) => {
     user,
   });
 });
+
+export default {
+  port: Number(process.env.PORT) || 3000,
+  fetch: app.fetch,
+};
