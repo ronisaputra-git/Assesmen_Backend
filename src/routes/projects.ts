@@ -7,7 +7,7 @@ import { validationError } from "../utils/validation";
 
 const projects = new Hono();
 
-projects.post("/", authMiddleware, requireRole("PM"), async (c) => {
+projects.post("/", authMiddleware, requireRole("ADMIN", "PM"), async (c) => {
     try {
       const body = await c.req.json();
       const result = createProjectSchema.safeParse(body);
@@ -159,7 +159,7 @@ projects.get("/:id", authMiddleware, async (c) => {
     );
   }
 });
-projects.patch("/:id", authMiddleware, requireRole("PM"), async (c) => {
+projects.patch("/:id", authMiddleware, requireRole("ADMIN","PM"), async (c) => {
   try {
     const projectId = c.req.param("id");
     const body = await c.req.json();
@@ -209,7 +209,7 @@ projects.patch("/:id", authMiddleware, requireRole("PM"), async (c) => {
     );
   }
 });
-projects.delete("/:id", authMiddleware, requireRole("PM"), async (c) => {
+projects.delete("/:id", authMiddleware, requireRole("ADMIN","PM"), async (c) => {
     try {
       const projectId = c.req.param("id");
       const result = projectIdSchema.safeParse({id: projectId,});
